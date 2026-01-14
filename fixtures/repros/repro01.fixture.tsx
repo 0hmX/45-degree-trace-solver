@@ -5,7 +5,9 @@ import problem from "../../tests/repros/repro01-input.json"
 export default () => {
   return (
     <GenericSolverDebugger
-      createSolver={() => new FortyFiveDegreeTraceSolver(problem as CurvyTraceProblem)}
+      createSolver={() =>
+        new FortyFiveDegreeTraceSolver(problem as CurvyTraceProblem)
+      }
     />
   )
 }

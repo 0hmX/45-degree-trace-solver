@@ -5,7 +5,9 @@ import problem from "./basics01-input.json"
 export default () => {
   return (
     <GenericSolverDebugger
-      createSolver={() => new FortyFiveDegreeTraceSolver(problem as CurvyTraceProblem)}
+      createSolver={() =>
+        new FortyFiveDegreeTraceSolver(problem as CurvyTraceProblem)
+      }
     />
   )
 }

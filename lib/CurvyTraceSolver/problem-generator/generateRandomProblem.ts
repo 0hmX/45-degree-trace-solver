@@ -1,5 +1,9 @@
 import type { Bounds } from "@tscircuit/math-utils"
-import type { CurvyTraceProblem, Obstacle, WaypointPair } from "lib/CurvyTraceSolver/types"
+import type {
+  CurvyTraceProblem,
+  Obstacle,
+  WaypointPair,
+} from "lib/CurvyTraceSolver/types"
 import { perimeterT } from "./countChordCrossings"
 import { createRng } from "./createRng"
 import { randomBoundaryPoint } from "./randomBoundaryPoint"

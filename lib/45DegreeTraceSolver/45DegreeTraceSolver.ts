@@ -1,5 +1,8 @@
 import { BaseSolver } from "@tscircuit/solver-utils"
-import type { CurvyTraceProblem, OutputTrace } from "../CurvyTraceSolver/types.ts"
+import type {
+  CurvyTraceProblem,
+  OutputTrace,
+} from "../CurvyTraceSolver/types.ts"
 import type { Point, Bounds } from "@tscircuit/math-utils"
 import type { GraphicsObject } from "graphics-debug"
 import { getObstacleOuterSegments } from "../CurvyTraceSolver/geometry/getObstacleOuterSegments.ts"
@@ -38,7 +41,6 @@ function getInwardDir({ p, bounds }: { p: Point; bounds: Bounds }): Point {
   if (Math.abs(p.x - minX) < eps) return { x: 1, y: 0 }
   return { x: 0, y: 0 }
 }
-
 
 function ptSegDistSq({
   px,
@@ -96,8 +98,7 @@ function intersects({
 }): boolean {
   const det = (b.x - a.x) * (d.y - c.y) - (b.y - a.y) * (d.x - c.x)
   if (det === 0) return false
-  const lambda =
-    ((d.y - c.y) * (d.x - a.x) + (c.x - d.x) * (d.y - a.y)) / det
+  const lambda = ((d.y - c.y) * (d.x - a.x) + (c.x - d.x) * (d.y - a.y)) / det
   const gamma = ((a.y - b.y) * (d.x - a.x) + (b.x - a.x) * (d.y - a.y)) / det
   return 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1
 }
@@ -130,7 +131,6 @@ export class FortyFiveDegreeTraceSolver extends BaseSolver {
   private iteration = 0
   private obstacleSegments: [Point, Point][] = []
   private obstacleNetworkIds: (string | undefined)[] = []
-  private spacing = 0.3
   private minAngle = 90
   private collisionWeight = 500
   private aversionWeight = 200
@@ -208,9 +208,14 @@ export class FortyFiveDegreeTraceSolver extends BaseSolver {
   }
 
   private getEffectiveSpacing(): number {
-    if (!this.useDecay) return this.spacing
+    const baseSpacing = this.problem.preferredTraceToTraceSpacing
+    if (!this.useDecay) return baseSpacing
     const progress = Math.min(1, this.iteration / 1000)
-    return this.spacing + 0.3 * (1 - progress)
+    const startMultiplier = 3.0
+    const endMultiplier = 1.0
+    const currentMultiplier =
+      startMultiplier + (endMultiplier - startMultiplier) * progress
+    return baseSpacing * currentMultiplier
   }
 
   private getElbowAngle({ t }: { t: TraceWithElbow }): number {
@@ -294,15 +299,22 @@ export class FortyFiveDegreeTraceSolver extends BaseSolver {
 
         for (const s1 of segsT) {
           for (const s2 of segsO) {
-            const d2 = segSegDistSq({ a1: s1[0], a2: s1[1], b1: s2[0], b2: s2[1] })
+            const d2 = segSegDistSq({
+              a1: s1[0],
+              a2: s1[1],
+              b1: s2[0],
+              b2: s2[1],
+            })
             if (d2 < eps) total += 5000000
             else if (d2 < effSpacing ** 2) {
-              total += (effSpacing - Math.sqrt(d2)) ** 2 * this.collisionWeight * 2
+              total +=
+                (effSpacing - Math.sqrt(d2)) ** 2 * this.collisionWeight * 2
             }
           }
         }
       }
 
+      const obstacleSpacing = this.problem.preferredObstacleToTraceSpacing
       for (let k = 0; k < this.obstacleSegments.length; k++) {
         const [p1, p2] = this.obstacleSegments[k]
 
@@ -316,8 +328,9 @@ export class FortyFiveDegreeTraceSolver extends BaseSolver {
         for (const s of segsT) {
           const d2 = segSegDistSq({ a1: s[0], a2: s[1], b1: p1, b2: p2 })
           if (d2 < eps) total += 5000000
-          else if (d2 < effSpacing ** 2) {
-            total += (effSpacing - Math.sqrt(d2)) ** 2 * this.collisionWeight * 2
+          else if (d2 < obstacleSpacing ** 2) {
+            total +=
+              (obstacleSpacing - Math.sqrt(d2)) ** 2 * this.collisionWeight * 2
           }
         }
       }
@@ -331,9 +344,7 @@ export class FortyFiveDegreeTraceSolver extends BaseSolver {
     const b = this.problem.bounds
     const margin = 0.001
 
-    const indices = this.traces
-      .map((_, i) => i)
-      .sort(() => Math.random() - 0.5)
+    const indices = this.traces.map((_, i) => i).sort(() => Math.random() - 0.5)
 
     indices.forEach((idx) => {
       const t = this.traces[idx]
