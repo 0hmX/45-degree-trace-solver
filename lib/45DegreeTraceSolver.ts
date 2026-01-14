@@ -341,7 +341,7 @@ export class FortyFiveDegreeTraceSolver extends BaseSolver {
     const b = this.problem.bounds
     const margin = 0.001
 
-    const indices = this.traces.map((_, i) => i).sort(() => Math.random() - 0.5)
+    const indices = this.traces.map((_, i) => i)
 
     indices.forEach((idx) => {
       const t = this.traces[idx]
@@ -358,7 +358,7 @@ export class FortyFiveDegreeTraceSolver extends BaseSolver {
         { x: -0.7, y: 0.7 },
         { x: 0.7, y: -0.7 },
         { x: -0.7, y: -0.7 },
-      ].sort(() => Math.random() - 0.5)
+      ]
 
       for (const dir of dirs) {
         const ox = t.elbow.x

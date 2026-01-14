@@ -1,5 +1,6 @@
 {
-  "name": "@tscircuit/curvy-trace-solver",
+  "name": "@tscircuit/45-degree-trace-solver",
+  "description": "A solver for routing PCB traces using 45-degree angled paths with elbow joints",
   "main": "dist/index.js",
   "version": "0.0.10",
   "type": "module",
