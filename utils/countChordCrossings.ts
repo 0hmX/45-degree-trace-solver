@@ -1,4 +1,4 @@
-import type { WaypointPair } from "lib/CurvyTraceSolver/types"
+import type { WaypointPair } from "../lib/45DegreeTraceSolver/types.ts"
 
 /**
  * Maps a boundary point to a 1D perimeter coordinate.

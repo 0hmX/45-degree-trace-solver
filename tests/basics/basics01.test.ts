@@ -1,11 +1,11 @@
 import { expect, test } from "bun:test"
 import { getSvgFromGraphicsObject } from "graphics-debug"
-import { CurvyTraceSolver } from "lib/CurvyTraceSolver"
+import { FortyFiveDegreeTraceSolver } from "lib/45DegreeTraceSolver"
 import problem from "fixtures/basics/basics01-input.json"
-import type { CurvyTraceProblem } from "lib/CurvyTraceSolver/types"
+import type { TraceProblem } from "lib/45DegreeTraceSolver/types.ts"
 
 test("basics01", () => {
-  const solver = new CurvyTraceSolver(problem as CurvyTraceProblem)
+  const solver = new FortyFiveDegreeTraceSolver(problem as TraceProblem)
   solver.solve()
   const svg = getSvgFromGraphicsObject(solver.visualize())
   expect(svg).toMatchSvgSnapshot(import.meta.path)

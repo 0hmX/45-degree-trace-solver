@@ -1,2 +1,2 @@
-export * from "./CurvyTraceSolver"
-export * from "./45DegreeTraceSolver"
+export * from "./45DegreeTraceSolver.ts"
+export * from "./45DegreeTraceSolver/types.ts"

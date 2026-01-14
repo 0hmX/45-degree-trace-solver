@@ -1,13 +1,13 @@
 import type { Bounds } from "@tscircuit/math-utils"
 import type {
-  CurvyTraceProblem,
+  TraceProblem,
   Obstacle,
   WaypointPair,
-} from "lib/CurvyTraceSolver/types"
-import { perimeterT } from "./countChordCrossings"
-import { createRng } from "./createRng"
-import { randomBoundaryPoint } from "./randomBoundaryPoint"
-import { wouldCrossAny } from "./wouldCrossAny"
+} from "../lib/45DegreeTraceSolver/types.ts"
+import { perimeterT } from "./countChordCrossings.ts"
+import { createRng } from "./createRng.ts"
+import { randomBoundaryPoint } from "./randomBoundaryPoint.ts"
+import { wouldCrossAny } from "./wouldCrossAny.ts"
 
 type Side = "top" | "bottom" | "left" | "right"
 
@@ -107,7 +107,7 @@ export const generateRandomProblem = (opts: {
    * Minimum spacing between a waypoint point and any other waypoint point.
    */
   minSpacing?: number
-}): CurvyTraceProblem => {
+}): TraceProblem => {
   const rng = createRng(opts.randomSeed)
 
   const bounds = opts.bounds ?? { minX: 0, maxX: 100, minY: 0, maxY: 100 }

@@ -1,5 +1,5 @@
 import type { Point } from "@tscircuit/math-utils"
-import type { Obstacle } from "lib/CurvyTraceSolver/types"
+import type { Obstacle } from "./types.ts"
 
 export const getObstacleOuterSegments = (obstacle: Obstacle) => {
   const segments: [Point, Point][] = [

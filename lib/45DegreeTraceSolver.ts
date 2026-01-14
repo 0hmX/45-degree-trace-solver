@@ -1,12 +1,9 @@
 import { BaseSolver } from "@tscircuit/solver-utils"
-import type {
-  CurvyTraceProblem,
-  OutputTrace,
-} from "../CurvyTraceSolver/types.ts"
+import type { TraceProblem, OutputTrace } from "./45DegreeTraceSolver/types.ts"
 import type { Point, Bounds } from "@tscircuit/math-utils"
 import type { GraphicsObject } from "graphics-debug"
-import { getObstacleOuterSegments } from "../CurvyTraceSolver/geometry/getObstacleOuterSegments.ts"
-import { visualizeCurvyTraceProblem } from "../CurvyTraceSolver/visualization-utils/index.ts"
+import { getObstacleOuterSegments } from "./45DegreeTraceSolver/getObstacleOuterSegments.ts"
+import { visualizeTraceProblem } from "./45DegreeTraceSolver/visualization.ts"
 
 interface TraceWithElbow {
   start: Point
@@ -136,7 +133,7 @@ export class FortyFiveDegreeTraceSolver extends BaseSolver {
   private aversionWeight = 200
   private useDecay = true
 
-  constructor(private problem: CurvyTraceProblem) {
+  constructor(private problem: TraceProblem) {
     super()
     for (const obstacle of this.problem.obstacles) {
       obstacle.outerSegments = getObstacleOuterSegments(obstacle)
@@ -425,6 +422,6 @@ export class FortyFiveDegreeTraceSolver extends BaseSolver {
     if (this.outputTraces.length === 0) {
       this.buildOutputTraces()
     }
-    return visualizeCurvyTraceProblem(this.problem, this.outputTraces)
+    return visualizeTraceProblem(this.problem, this.outputTraces)
   }
 }

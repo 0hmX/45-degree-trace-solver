@@ -1,9 +1,21 @@
 import type { GraphicsObject } from "graphics-debug"
-import type { CurvyTraceProblem, OutputTrace } from "../types"
-import { getColorForNetworkId } from "./index"
+import type { TraceProblem, OutputTrace } from "./types.ts"
 
-export const visualizeCurvyTraceProblem = (
-  problem: CurvyTraceProblem,
+const hashString = (str: string) => {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) * 779 + ((hash << 5) - hash)
+  }
+  return hash
+}
+
+const getColorForNetworkId = (networkId?: string | null) => {
+  if (!networkId) return "rgba(0, 0, 0, 0.5)"
+  return `hsl(${hashString(networkId) % 360}, 100%, 50%)`
+}
+
+export const visualizeTraceProblem = (
+  problem: TraceProblem,
   outputTraces: OutputTrace[] = [],
 ): GraphicsObject => {
   const graphics = {
@@ -14,10 +26,9 @@ export const visualizeCurvyTraceProblem = (
     coordinateSystem: "cartesian",
     points: [],
     texts: [],
-    title: "Curvy Trace Problem",
+    title: "45° Trace Problem",
   } as Required<GraphicsObject>
 
-  // Draw bounds
   graphics.lines.push({
     points: [
       { x: problem.bounds.minX, y: problem.bounds.minY },
@@ -29,7 +40,6 @@ export const visualizeCurvyTraceProblem = (
     strokeColor: "rgba(0, 0, 0, 0.1)",
   })
 
-  // Draw waypoint pairs
   for (const waypointPair of problem.waypointPairs) {
     graphics.points.push({
       ...waypointPair.start,
@@ -43,7 +53,6 @@ export const visualizeCurvyTraceProblem = (
     })
   }
 
-  // Draw obstacles
   for (const obstacle of problem.obstacles) {
     graphics.rects.push({
       center: obstacle.center,
@@ -55,7 +64,6 @@ export const visualizeCurvyTraceProblem = (
     })
   }
 
-  // Draw output traces
   for (const trace of outputTraces) {
     graphics.lines.push({
       points: trace.points,

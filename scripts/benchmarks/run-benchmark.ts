@@ -1,6 +1,5 @@
-import { CurvyTraceSolver } from "../../lib/CurvyTraceSolver"
-import { generateRandomProblem } from "../../lib/CurvyTraceSolver/problem-generator"
-import { scoreOutputCost } from "../../lib/CurvyTraceSolver/scoreOutputCost"
+import { generateRandomProblem } from "../../utils/index.ts"
+import { FortyFiveDegreeTraceSolver } from "../../lib/45DegreeTraceSolver.ts"
 
 const NUM_PROBLEMS = 25
 const MIN_WAYPOINT_PAIRS = 2
@@ -39,19 +38,11 @@ function runBenchmark() {
       minSpacing: 5,
     })
 
-    const solver = new CurvyTraceSolver(problem)
+    const solver = new FortyFiveDegreeTraceSolver(problem)
 
-    // Run solver until complete (with max iterations to prevent infinite loops)
-    const MAX_ITERATIONS = 1000
-    for (let iter = 0; iter < MAX_ITERATIONS && !solver.solved; iter++) {
-      solver.step()
-    }
+    solver.solve()
 
-    const score = scoreOutputCost({
-      problem,
-      outputTraces: solver.outputTraces,
-    })
-
+    const score = solver.outputTraces.length
     scores.push(score)
 
     // Progress indicator for each problem
