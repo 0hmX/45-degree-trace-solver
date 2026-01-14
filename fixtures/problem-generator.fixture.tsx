@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react"
 import { GenericSolverDebugger } from "@tscircuit/solver-utils/react"
-import { generateRandomProblem } from "../lib/CurvyTraceSolver/problem-generator"
-import { CurvyTraceSolver } from "../lib/CurvyTraceSolver/CurvyTraceSolver"
-import type { CurvyTraceProblem } from "../lib/CurvyTraceSolver/types"
+import { generateRandomProblem } from "../lib/CurvyTraceSolver/problem-generator/index.ts"
+import { FortyFiveDegreeTraceSolver } from "../lib/45DegreeTraceSolver/45DegreeTraceSolver.ts"
+import type { CurvyTraceProblem } from "../lib/CurvyTraceSolver/types.ts"
 
 export default () => {
   const [randomSeed, setRandomSeed] = useState(1)
@@ -43,7 +43,7 @@ export default () => {
       </div>
       <GenericSolverDebugger
         key={`${randomSeed}-${numWaypointPairs}`}
-        createSolver={() => new CurvyTraceSolver(problem as CurvyTraceProblem)}
+        createSolver={() => new FortyFiveDegreeTraceSolver(problem as CurvyTraceProblem)}
       />
     </div>
   )
