@@ -56,13 +56,7 @@
                 <span>Min Angle (deg)</span>
                 <span id="val-min-angle">90</span>
             </div>
-            <input type="range" id="set-min-angle" min="45" max="170" step="5" value="90">
-
-            <div class="label-row mt-3">
-                <span>Max Angle (deg)</span>
-                <span id="val-max-angle">175</span>
-            </div>
-            <input type="range" id="set-max-angle" min="100" max="180" step="5" value="175">
+            <input type="range" id="set-min-angle" min="45" max="175" step="5" value="90">
 
             <div class="label-row mt-3">
                 <span>Collision Hardness</span>
@@ -120,7 +114,6 @@ const PROBLEM = {
 const SETTINGS = {
     spacing: 0.3,
     minAngle: 90,
-    maxAngle: 175,
     collisionWeight: 500,
     aversionWeight: 200,
     useDecay: true
@@ -230,8 +223,7 @@ class PcbSolver {
 
         for (const t of this.traces) {
             const angle = this.getElbowAngle(t);
-            if (angle < SETTINGS.minAngle) total += (SETTINGS.minAngle - angle) ** 2 * 100;
-            if (angle > SETTINGS.maxAngle) total += (angle - SETTINGS.maxAngle) ** 2 * 100;
+            if (angle < SETTINGS.minAngle) total += (SETTINGS.minAngle - angle) * 10;
 
             const dir1 = this.getInwardDir(t.start), dir2 = this.getInwardDir(t.end);
             const d1 = (t.elbow.x - t.start.x) * dir1.x + (t.elbow.y - t.start.y) * dir1.y;
@@ -244,7 +236,8 @@ class PcbSolver {
             const distToTop = b.maxY - t.elbow.y;
             const minDist = Math.min(distToLeft, distToRight, distToBottom, distToTop);
             
-            if (minDist < effSpacing) total += (effSpacing - minDist) ** 2 * SETTINGS.aversionWeight;
+            // Boundary Repulsion: Always push away
+            total += (0.01 / (minDist + 0.005)) * SETTINGS.aversionWeight;
 
             for (const outId of t.containedBy) {
                 const out = this.traces[outId];
@@ -252,12 +245,17 @@ class PcbSolver {
                 const od1 = (out.elbow.x - out.start.x) * odir1.x + (out.elbow.y - out.start.y) * odir1.y;
                 const od2 = (out.elbow.x - out.end.x) * odir2.x + (out.elbow.y - out.end.y) * odir2.y;
                 const outDepth = Math.min(od1, od2);
-                if (myDepth < outDepth + effSpacing) total += (outDepth + effSpacing - myDepth) ** 2 * 1000;
+                if (myDepth < outDepth + effSpacing) total += (outDepth + effSpacing - myDepth) ** 2 * 5000;
             }
         }
 
         for (let i = 0; i < this.traces.length; i++) {
             const t = this.traces[i];
+            const b = this.problem.bounds;
+            if (t.elbow.x < b.minX + 0.005 || t.elbow.x > b.maxX - 0.005 || t.elbow.y < b.minY + 0.005 || t.elbow.y > b.maxY - 0.005) {
+                total += 10000000;
+            }
+
             const segsT = [[t.start, t.elbow], [t.elbow, t.end]];
 
             for (let j = i + 1; j < this.traces.length; j++) {
@@ -267,9 +265,9 @@ class PcbSolver {
                 for (const s1 of segsT) {
                     for (const s2 of segsO) {
                         const d2 = this.segSegDistSq(s1[0], s1[1], s2[0], s2[1]);
-                        if (d2 < eps) total += 1000000;
+                        if (d2 < eps) total += 5000000;
                         else if (d2 < effSpacing ** 2) {
-                            total += (effSpacing - Math.sqrt(d2)) ** 2 * SETTINGS.collisionWeight;
+                            total += (effSpacing - Math.sqrt(d2)) ** 2 * SETTINGS.collisionWeight * 2;
                         }
                     }
                 }
@@ -280,16 +278,13 @@ class PcbSolver {
                     const p1 = obs.points[k], p2 = obs.points[(k + 1) % obs.points.length];
                     for (const s of segsT) {
                         const d2 = this.segSegDistSq(s[0], s[1], p1, p2);
-                        if (d2 < eps) total += 1000000;
+                        if (d2 < eps) total += 5000000;
                         else if (d2 < effSpacing ** 2) {
-                            total += (effSpacing - Math.sqrt(d2)) ** 2 * SETTINGS.collisionWeight;
+                            total += (effSpacing - Math.sqrt(d2)) ** 2 * SETTINGS.collisionWeight * 2;
                         }
                     }
                 }
             });
-
-            const b = this.problem.bounds;
-            if (t.elbow.x < b.minX || t.elbow.x > b.maxX || t.elbow.y < b.minY || t.elbow.y > b.maxY) total += 50000;
         }
         return total;
     }
@@ -411,7 +406,6 @@ const bind = (id, key, valId, transform = v => v) => {
 
 bind('set-spacing', 'spacing', 'val-spacing', Number);
 bind('set-min-angle', 'minAngle', 'val-min-angle', Number);
-bind('set-max-angle', 'maxAngle', 'val-max-angle', Number);
 bind('set-collision', 'collisionWeight', 'val-collision', Number);
 bind('set-aversion', 'aversionWeight', 'val-aversion', Number);
 document.getElementById('set-decay').onchange = (e) => {
